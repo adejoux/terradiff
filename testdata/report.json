@@ -1,0 +1,293 @@
+{
+  "providers": [
+    "registry.terraform.io/example/demo"
+  ],
+  "changes": [
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "provider",
+      "path": "retries",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added optional attribute `retries` (`number`).",
+      "detail": "Number of retries on HTTP 5xx errors."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_disk",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "New resource.",
+      "detail": "Manages a block storage disk."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_old_thing",
+      "op": "removed",
+      "severity": "breaking",
+      "message": "Removed."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "op": "changed",
+      "severity": "note",
+      "message": "Schema version changed from 0 to 1: existing state is upgraded automatically on the next plan."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "op": "changed",
+      "severity": "enhancement",
+      "message": "Now supports resource identity (`id`, `region`)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "backup",
+      "op": "removed",
+      "severity": "breaking",
+      "message": "Removed block `backup`."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "cpu_count",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Attribute `cpu_count` type changed from `number` to `string`."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "description",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added optional attribute `description` (`string`).",
+      "detail": "Free-form description."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "disk",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Block `disk` nesting changed from `list` to `set`."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "disk",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Block `disk` now accepts at most 2 items (was at most 4 items)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "disk.encrypted",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added optional attribute `disk.encrypted` (`bool`, computed when not set)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "image",
+      "op": "added",
+      "severity": "breaking",
+      "message": "Added required attribute `image` (`string`).",
+      "detail": "Image to boot from."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "ip_address",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added read-only attribute `ip_address` (`string`)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "labels",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "`labels` changed from an attribute to a block: use `labels { ... }` instead of `labels = ...`."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "legacy_flag",
+      "op": "changed",
+      "severity": "deprecation",
+      "message": "Attribute `legacy_flag` is deprecated.",
+      "detail": "Use `feature_flags` instead."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "name",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Attribute `name` is now required (was optional)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "network.security_group_ids",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added optional attribute `network.security_group_ids` (`set(string)`)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "password",
+      "op": "changed",
+      "severity": "note",
+      "message": "Attribute `password` is now sensitive: its value is hidden in plan output."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "password",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Attribute `password` is now write-only: its value is no longer stored in state and cannot be referenced."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "region",
+      "op": "changed",
+      "severity": "note",
+      "message": "Attribute `region` is no longer computed by the provider: it is only set when configured."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "size",
+      "op": "changed",
+      "severity": "enhancement",
+      "message": "Attribute `size` is now optional (was required)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "tags",
+      "op": "changed",
+      "severity": "note",
+      "message": "Attribute `tags` is now computed by the provider when not set."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_server",
+      "path": "timeouts.delete",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added optional attribute `timeouts.delete` (`string`)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "resource",
+      "entity": "demo_volume",
+      "op": "changed",
+      "severity": "deprecation",
+      "message": "This resource is deprecated.",
+      "detail": "Use demo_disk instead."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "data_source",
+      "entity": "demo_images",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "New data source.",
+      "detail": "Lists available images."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "data_source",
+      "entity": "demo_server",
+      "path": "id",
+      "op": "changed",
+      "severity": "enhancement",
+      "message": "Attribute `id` is now optional (was required)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "data_source",
+      "entity": "demo_server",
+      "path": "name",
+      "op": "changed",
+      "severity": "enhancement",
+      "message": "Attribute `name` can now be set (optional, was read-only)."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "ephemeral_resource",
+      "entity": "demo_token",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "New ephemeral resource.",
+      "detail": "Generates a short-lived API token."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "function",
+      "entity": "format_id",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "`provider::demo::format_id(region string, name string) string`",
+      "detail": "Builds an ID from its parts."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "function",
+      "entity": "old_func",
+      "op": "removed",
+      "severity": "breaking",
+      "message": "Removed."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "function",
+      "entity": "parse_id",
+      "op": "changed",
+      "severity": "breaking",
+      "message": "Return type changed from `object({ name = string, region = string })` to `object({ name = string, project = string, region = string })`."
+    },
+    {
+      "provider": "registry.terraform.io/example/demo",
+      "kind": "function",
+      "entity": "parse_id",
+      "path": "options",
+      "op": "added",
+      "severity": "enhancement",
+      "message": "Added variadic parameter `options` (`string`)."
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "format_version": "1.0",
+  "provider_schemas": {
+    "registry.terraform.io/example/demo": {
+      "provider": {
+        "version": 0,
+        "block": {
+          "attributes": {
+            "endpoint": { "type": "string", "optional": true, "description": "API endpoint URL." },
+            "token": { "type": "string", "optional": true, "sensitive": true },
+            "retries": { "type": "number", "optional": true, "description": "Number of retries on HTTP 5xx errors. Defaults to 3." }
+          }
+        }
+      },
+      "resource_schemas": {
+        "demo_server": {
+          "version": 1,
+          "block": {
+            "description": "Manages a server.",
+            "attributes": {
+              "id": { "type": "string", "computed": true },
+              "name": { "type": "string", "required": true },
+              "size": { "type": "string", "optional": true },
+              "region": { "type": "string", "optional": true },
+              "cpu_count": { "type": "string", "optional": true },
+              "tags": { "type": ["map", "string"], "optional": true, "computed": true },
+              "password": { "type": "string", "optional": true, "sensitive": true, "write_only": true },
+              "legacy_flag": { "type": "bool", "optional": true, "deprecated": true, "description": "Use `feature_flags` instead." },
+              "status": { "type": "string", "computed": true },
+              "image": { "type": "string", "required": true, "description": "Image to boot from." },
+              "description": { "type": "string", "optional": true, "description": "Free-form description. Maximum 255 characters." },
+              "ip_address": { "type": "string", "computed": true },
+              "network": {
+                "nested_type": {
+                  "nesting_mode": "single",
+                  "attributes": {
+                    "vpc_id": { "type": "string", "required": true },
+                    "subnet_id": { "type": "string", "optional": true },
+                    "security_group_ids": { "type": ["set", "string"], "optional": true }
+                  }
+                },
+                "optional": true
+              }
+            },
+            "block_types": {
+              "disk": {
+                "nesting_mode": "set",
+                "max_items": 2,
+                "block": {
+                  "attributes": {
+                    "size_gb": { "type": "number", "required": true },
+                    "type": { "type": "string", "optional": true },
+                    "encrypted": { "type": "bool", "optional": true, "computed": true }
+                  }
+                }
+              },
+              "timeouts": {
+                "nesting_mode": "single",
+                "block": {
+                  "attributes": {
+                    "create": { "type": "string", "optional": true },
+                    "delete": { "type": "string", "optional": true }
+                  }
+                }
+              },
+              "labels": {
+                "nesting_mode": "list",
+                "block": {
+                  "attributes": {
+                    "key": { "type": "string", "required": true },
+                    "value": { "type": "string", "required": true }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "demo_volume": {
+          "version": 1,
+          "block": {
+            "deprecated": true,
+            "description": "Use demo_disk instead. This resource will be removed in v3.",
+            "attributes": {
+              "id": { "type": "string", "computed": true },
+              "size": { "type": "number", "required": true }
+            }
+          }
+        },
+        "demo_disk": {
+          "version": 0,
+          "block": {
+            "description": "Manages a block storage disk. Disks can be attached to servers.",
+            "attributes": {
+              "id": { "type": "string", "computed": true },
+              "size": { "type": "number", "required": true }
+            }
+          }
+        }
+      },
+      "data_source_schemas": {
+        "demo_server": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "id": { "type": "string", "optional": true },
+              "name": { "type": "string", "optional": true, "computed": true }
+            }
+          }
+        },
+        "demo_images": {
+          "version": 0,
+          "block": {
+            "description": "Lists available images.",
+            "attributes": { "ids": { "type": ["list", "string"], "computed": true } }
+          }
+        }
+      },
+      "ephemeral_resource_schemas": {
+        "demo_token": {
+          "version": 0,
+          "block": {
+            "description": "Generates a short-lived API token.",
+            "attributes": { "value": { "type": "string", "computed": true, "sensitive": true } }
+          }
+        }
+      },
+      "functions": {
+        "parse_id": {
+          "summary": "Parses an ID.",
+          "return_type": ["object", { "region": "string", "name": "string", "project": "string" }],
+          "parameters": [
+            { "name": "id", "type": "string" }
+          ],
+          "variadic_parameter": { "name": "options", "type": "string" }
+        },
+        "format_id": {
+          "summary": "Builds an ID from its parts.",
+          "return_type": "string",
+          "parameters": [
+            { "name": "region", "type": "string" },
+            { "name": "name", "type": "string" }
+          ]
+        }
+      },
+      "resource_identity_schemas": {
+        "demo_volume": {
+          "version": 0,
+          "attributes": {
+            "id": { "type": "string", "required_for_import": true }
+          }
+        },
+        "demo_server": {
+          "version": 0,
+          "attributes": {
+            "id": { "type": "string", "required_for_import": true },
+            "region": { "type": "string", "optional_for_import": true }
+          }
+        }
+      }
+    }
+  }
+}

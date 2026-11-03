@@ -1,0 +1,120 @@
+{
+  "format_version": "1.0",
+  "provider_schemas": {
+    "registry.terraform.io/example/demo": {
+      "provider": {
+        "version": 0,
+        "block": {
+          "attributes": {
+            "endpoint": { "type": "string", "optional": true, "description": "API endpoint." },
+            "token": { "type": "string", "optional": true, "sensitive": true }
+          }
+        }
+      },
+      "resource_schemas": {
+        "demo_server": {
+          "version": 0,
+          "block": {
+            "description": "Manages a server.",
+            "attributes": {
+              "id": { "type": "string", "computed": true },
+              "name": { "type": "string", "optional": true },
+              "size": { "type": "string", "required": true },
+              "region": { "type": "string", "optional": true, "computed": true },
+              "cpu_count": { "type": "number", "optional": true },
+              "tags": { "type": ["map", "string"], "optional": true },
+              "password": { "type": "string", "optional": true },
+              "legacy_flag": { "type": "bool", "optional": true },
+              "status": { "type": "string", "computed": true },
+              "labels": { "type": ["list", "string"], "optional": true },
+              "network": {
+                "nested_type": {
+                  "nesting_mode": "single",
+                  "attributes": {
+                    "vpc_id": { "type": "string", "required": true },
+                    "subnet_id": { "type": "string", "optional": true }
+                  }
+                },
+                "optional": true
+              }
+            },
+            "block_types": {
+              "disk": {
+                "nesting_mode": "list",
+                "max_items": 4,
+                "block": {
+                  "attributes": {
+                    "size_gb": { "type": "number", "required": true },
+                    "type": { "type": "string", "optional": true }
+                  }
+                }
+              },
+              "timeouts": {
+                "nesting_mode": "single",
+                "block": {
+                  "attributes": {
+                    "create": { "type": "string", "optional": true }
+                  }
+                }
+              },
+              "backup": {
+                "nesting_mode": "list",
+                "max_items": 1,
+                "block": {
+                  "attributes": {
+                    "enabled": { "type": "bool", "optional": true }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "demo_old_thing": {
+          "version": 0,
+          "block": { "attributes": { "id": { "type": "string", "computed": true } } }
+        },
+        "demo_volume": {
+          "version": 1,
+          "block": {
+            "attributes": {
+              "id": { "type": "string", "computed": true },
+              "size": { "type": "number", "required": true }
+            }
+          }
+        }
+      },
+      "data_source_schemas": {
+        "demo_server": {
+          "version": 0,
+          "block": {
+            "attributes": {
+              "id": { "type": "string", "required": true },
+              "name": { "type": "string", "computed": true }
+            }
+          }
+        }
+      },
+      "functions": {
+        "parse_id": {
+          "summary": "Parses an ID.",
+          "return_type": ["object", { "region": "string", "name": "string" }],
+          "parameters": [
+            { "name": "id", "type": "string" }
+          ]
+        },
+        "old_func": {
+          "return_type": "string",
+          "parameters": []
+        }
+      },
+      "resource_identity_schemas": {
+        "demo_volume": {
+          "version": 0,
+          "attributes": {
+            "id": { "type": "string", "required_for_import": true }
+          }
+        }
+      }
+    }
+  }
+}

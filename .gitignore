@@ -1,0 +1,4 @@
+/terradiff
+/dist/
+*.test
+*.out
