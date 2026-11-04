@@ -155,3 +155,7 @@ Descriptions are only compared with `--descriptions`.
 go test ./...
 go test . -update   # regenerate the golden files in testdata/
 ```
+
+## License
+
+[MIT](LICENSE)
