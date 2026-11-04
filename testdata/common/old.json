@@ -1,0 +1,226 @@
+{
+  "format_version": "1.0",
+  "provider_schemas": {
+    "registry.terraform.io/example/acme": {
+      "data_source_schemas": {
+        "acme_a": {
+          "block": {
+            "attributes": {
+              "id": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "name": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        },
+        "acme_b": {
+          "block": {
+            "attributes": {
+              "id": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "name": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        }
+      },
+      "provider": {
+        "block": {
+          "description_kind": "plain"
+        },
+        "version": 0
+      },
+      "resource_schemas": {
+        "acme_a": {
+          "block": {
+            "attributes": {
+              "id": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "labels": {
+                "description": "Labels.",
+                "description_kind": "plain",
+                "optional": true,
+                "type": [
+                  "map",
+                  "string"
+                ]
+              },
+              "name": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "owner": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "project_id": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "zone": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        },
+        "acme_b": {
+          "block": {
+            "attributes": {
+              "id": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "labels": {
+                "description": "Labels.",
+                "description_kind": "plain",
+                "optional": true,
+                "type": [
+                  "map",
+                  "string"
+                ]
+              },
+              "name": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "owner": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "project_id": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "zone": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        },
+        "acme_c": {
+          "block": {
+            "attributes": {
+              "id": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "labels": {
+                "description": "Labels.",
+                "description_kind": "plain",
+                "optional": true,
+                "type": [
+                  "map",
+                  "string"
+                ]
+              },
+              "name": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "owner": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "project_id": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "zone": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        },
+        "acme_d": {
+          "block": {
+            "attributes": {
+              "id": {
+                "computed": true,
+                "description_kind": "plain",
+                "type": "string"
+              },
+              "labels": {
+                "description": "Labels.",
+                "description_kind": "plain",
+                "optional": true,
+                "type": [
+                  "map",
+                  "string"
+                ]
+              },
+              "legacy": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "name": {
+                "description_kind": "plain",
+                "required": true,
+                "type": "string"
+              },
+              "owner": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "project_id": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              },
+              "zone": {
+                "description_kind": "plain",
+                "optional": true,
+                "type": "string"
+              }
+            },
+            "description_kind": "plain"
+          },
+          "version": 0
+        }
+      }
+    }
+  }
+}

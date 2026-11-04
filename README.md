@@ -48,6 +48,7 @@ to read it from stdin.
 | `--heading-level N` | Level of the top heading. Use `2` or more to paste the output into an existing `CHANGELOG.md`. |
 | `--no-title` | Omit the top heading. |
 | `--no-summary` | Omit the summary table. |
+| `--common-min N` | Changes found identically in at least `N` resources, data sources... are shown once in a "Common changes" sub-section (default `3`, `0` disables). |
 | `--descriptions` | Also report documentation-only changes (descriptions). Off by default. |
 | `--provider ADDR` | Only compare one provider when the files contain several (full address or suffix, e.g. `hashicorp/aws`). |
 | `--fail-on-breaking` | Exit with code `2` when breaking changes are found (useful in CI). |
@@ -77,6 +78,32 @@ The release notes are organised by impact, most important first:
 Inside each section, changes are grouped by kind (resources, data sources...)
 then by entity. Identical changes on many attributes of the same entity are
 merged into a single line.
+
+A change found identically in several entities (by default 3 or more), such
+as a `region` attribute added to every resource, is listed once in a
+**Common changes** sub-section at the top of its section, instead of being
+repeated under each entity. Common changes keep their impact: a shared
+breaking change is still listed under "Breaking changes".
+
+```markdown
+## ⚠️ Breaking changes
+
+### Common changes
+
+- **All resources and data sources**: Added required attribute `region` (`string`): Region of the object.
+
+### Resources
+
+- **`acme_d`**: Removed attribute `legacy`.
+
+## Deprecations
+
+### Common changes
+
+- **`acme_a`, `acme_b` and `acme_c` (resources)**: Attribute `labels` is deprecated: Use `tags` instead.
+```
+
+The JSON output (`--format json`) always lists every change individually.
 
 Example, comparing `hashicorp/random` v3.1.0 and v3.6.3 (full output in
 [`testdata/random/release-notes.md`](testdata/random/release-notes.md)):

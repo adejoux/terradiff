@@ -160,6 +160,9 @@ type Report struct {
 	Providers []string `json:"providers"`
 	// Changes are all the differences found, in display order.
 	Changes []Change `json:"changes"`
+	// Compared lists, per provider and kind, the entities present in both
+	// versions. It tells whether a change applies to all of them.
+	Compared map[string]map[Kind][]string `json:"-"`
 }
 
 // HasBreaking reports whether the report contains breaking changes.

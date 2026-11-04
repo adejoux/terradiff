@@ -23,6 +23,9 @@ type Options struct {
 	NoTitle bool
 	// NoSummary omits the summary table.
 	NoSummary bool
+	// CommonMin is the number of entities from which an identical change is
+	// moved to a "Common changes" sub-section. Values below 2 disable it.
+	CommonMin int
 }
 
 // Markdown writes the report as Markdown release notes.
@@ -73,11 +76,11 @@ func (m *md) document(r *diff.Report) {
 	}
 
 	if len(r.Providers) == 1 {
-		m.provider(level, r.Providers[0], changesOf(r, r.Providers[0]), false)
+		m.provider(level, r.Providers[0], changesOf(r, r.Providers[0]), r.Compared[r.Providers[0]], false)
 		return
 	}
 	for _, p := range r.Providers {
-		m.provider(level, p, changesOf(r, p), true)
+		m.provider(level, p, changesOf(r, p), r.Compared[p], true)
 	}
 }
 
@@ -98,7 +101,7 @@ func (m *md) title(r *diff.Report) string {
 	return name + " schema changes"
 }
 
-func (m *md) provider(level int, name string, changes []diff.Change, withHeading bool) {
+func (m *md) provider(level int, name string, changes []diff.Change, compared map[diff.Kind][]string, withHeading bool) {
 	if withHeading {
 		m.heading(level, "`"+name+"`")
 		level++
@@ -108,15 +111,19 @@ func (m *md) provider(level int, name string, changes []diff.Change, withHeading
 		m.blank()
 		return
 	}
+	// Changes shared by many entities are shown once, in a "Common
+	// changes" sub-section at the top of their section, and counted once.
+	common, rest := diff.FactorCommon(changes, compared, m.opts.CommonMin)
 	if !m.opts.NoSummary {
-		m.summary(changes)
+		counted := rest
+		for _, g := range common {
+			counted = append(counted, g.Changes...)
+		}
+		m.summary(counted)
 	}
 
 	// Breaking changes, all kinds together, entity removals first.
-	if bc := filter(changes, func(c diff.Change) bool { return c.Severity == diff.Breaking }); len(bc) > 0 {
-		m.heading(level, "⚠️ Breaking changes")
-		m.byKind(level+1, bc)
-	}
+	m.section(level, "⚠️ Breaking changes", common, rest, func(c diff.Change) bool { return c.Severity == diff.Breaking })
 
 	// New entities.
 	if nc := filter(changes, func(c diff.Change) bool { return c.IsEntityLevel() && c.Op == diff.Added }); len(nc) > 0 {
@@ -151,15 +158,79 @@ func (m *md) provider(level int, name string, changes []diff.Change, withHeading
 		{"Documentation", diff.Docs},
 	}
 	for _, s := range sections {
-		sc := filter(changes, func(c diff.Change) bool {
+		m.section(level, s.title, common, rest, func(c diff.Change) bool {
 			return c.Severity == s.sev && !(c.IsEntityLevel() && c.Op == diff.Added)
 		})
-		if len(sc) == 0 {
+	}
+}
+
+// section renders the common and per-entity changes selected by keep under
+// a heading, if there are any.
+func (m *md) section(level int, title string, common []diff.CommonGroup, rest []diff.Change, keep func(diff.Change) bool) {
+	type sharedLines struct {
+		label string
+		lines []string
+	}
+	var shared []sharedLines
+	for _, g := range common {
+		if cs := filter(g.Changes, keep); len(cs) > 0 {
+			shared = append(shared, sharedLines{commonLabel(g), mergeSimilar(cs)})
+		}
+	}
+	own := filter(rest, keep)
+	if len(shared) == 0 && len(own) == 0 {
+		return
+	}
+	m.heading(level, title)
+	if len(shared) > 0 {
+		m.heading(level+1, "Common changes")
+		for _, s := range shared {
+			if len(s.lines) == 1 {
+				m.line("- %s: %s", s.label, s.lines[0])
+				continue
+			}
+			m.line("- %s", s.label)
+			for _, l := range s.lines {
+				m.line("  - %s", l)
+			}
+		}
+		m.blank()
+	}
+	m.byKind(level+1, own)
+}
+
+// commonLabel describes the entities of a common group: "**All resources
+// and data sources**", "**`a`, `b` and `c` (resources)**".
+func commonLabel(g diff.CommonGroup) string {
+	var parts, allPlurals []string
+	allOnly := true
+	for _, k := range diff.Kinds {
+		es := g.Entities[k]
+		if len(es) == 0 {
 			continue
 		}
-		m.heading(level, s.title)
-		m.byKind(level+1, sc)
+		plural := lowerFirst(k.Plural())
+		if g.All[k] && len(es) > 1 {
+			parts = append(parts, "all "+plural)
+			allPlurals = append(allPlurals, plural)
+			continue
+		}
+		allOnly = false
+		names := make([]string, len(es))
+		for i, e := range es {
+			names[i] = "`" + e + "`"
+		}
+		if len(es) == 1 {
+			parts = append(parts, names[0]+" ("+k.Singular()+")")
+		} else {
+			parts = append(parts, enumerate(names)+" ("+plural+")")
+		}
 	}
+	label := enumerate(parts)
+	if allOnly {
+		label = "all " + enumerate(allPlurals)
+	}
+	return "**" + strings.ToUpper(label[:1]) + label[1:] + "**"
 }
 
 func (m *md) summary(changes []diff.Change) {

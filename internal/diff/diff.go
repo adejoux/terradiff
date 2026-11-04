@@ -29,7 +29,7 @@ func Compare(oldDoc, newDoc *schema.Document, opts Options) (*Report, error) {
 	}
 	for _, p := range pairs {
 		r.Providers = append(r.Providers, p.name)
-		d := &differ{opts: opts, provider: p.name}
+		d := &differ{opts: opts, provider: p.name, compared: map[Kind][]string{}}
 		if p.oldName != p.name {
 			d.add(Change{
 				Kind:     KindProvider,
@@ -40,6 +40,10 @@ func Compare(oldDoc, newDoc *schema.Document, opts Options) (*Report, error) {
 		}
 		d.providerSchema(p.old, p.new)
 		r.Changes = append(r.Changes, d.changes...)
+		if r.Compared == nil {
+			r.Compared = map[string]map[Kind][]string{}
+		}
+		r.Compared[p.name] = d.compared
 	}
 	sortChanges(r.Changes)
 	return r, nil
@@ -130,6 +134,8 @@ type differ struct {
 	opts     Options
 	provider string
 	changes  []Change
+	// compared lists, per kind, the entities present in both versions.
+	compared map[Kind][]string
 
 	// current entity
 	kind   Kind
@@ -178,6 +184,7 @@ func (d *differ) schemaMap(kind Kind, o, n map[string]*schema.Schema) {
 		case ns == nil:
 			d.add(Change{Op: Removed, Severity: Breaking, Message: "Removed."})
 		default:
+			d.compared[kind] = append(d.compared[kind], name)
 			d.schemaBody(os, ns)
 		}
 	}
