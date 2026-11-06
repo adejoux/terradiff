@@ -43,6 +43,8 @@ func TestGolden(t *testing.T) {
 		{"report.json", []string{"--format", "json"}, demo},
 		{"random/release-notes.md", []string{"--old-version", "v3.1.0", "--new-version", "v3.6.3"}, random},
 		{"common/release-notes.md", []string{"--new-version", "v2.0.0"}, []string{"testdata/common/old.json", "testdata/common/new.json"}},
+		{"common-large/release-notes.md", []string{"--new-version", "v2.0.0"}, []string{"testdata/common-large/old.json", "testdata/common-large/new.json"}},
+		{"common-large/release-notes-no-html.md", []string{"--new-version", "v2.0.0", "--no-html"}, []string{"testdata/common-large/old.json", "testdata/common-large/new.json"}},
 		{"common/release-notes-no-common.md", []string{"--new-version", "v2.0.0", "--common-min", "0"}, []string{"testdata/common/old.json", "testdata/common/new.json"}},
 	}
 	for _, tt := range tests {

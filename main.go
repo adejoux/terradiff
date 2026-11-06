@@ -62,6 +62,7 @@ func run(args []string, stdout, stderr io.Writer) (int, error) {
 		noTitle        = fs.Bool("no-title", false, "omit the top heading")
 		noSummary      = fs.Bool("no-summary", false, "omit the summary table")
 		commonMin      = fs.Int("common-min", 3, "move changes found identically in at least `N` resources or data sources to a \"Common changes\" section (0 disables)")
+		noHTML         = fs.Bool("no-html", false, "write no HTML: long lists of entities affected by a common change are plain text instead of a collapsible <details> block")
 		descriptions   = fs.Bool("descriptions", false, "include documentation-only changes (descriptions)")
 		provider       = fs.String("provider", "", "only compare this provider `address` (full address or suffix, e.g. hashicorp/aws)")
 		failOnBreaking = fs.Bool("fail-on-breaking", false, fmt.Sprintf("exit with code %d when breaking changes are found", exitBreaking))
@@ -134,6 +135,7 @@ func run(args []string, stdout, stderr io.Writer) (int, error) {
 			NoTitle:      *noTitle,
 			NoSummary:    *noSummary,
 			CommonMin:    *commonMin,
+			NoHTML:       *noHTML,
 		})
 	}
 	if err != nil {

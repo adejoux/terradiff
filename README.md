@@ -49,6 +49,7 @@ to read it from stdin.
 | `--no-title` | Omit the top heading. |
 | `--no-summary` | Omit the summary table. |
 | `--common-min N` | Changes found identically in at least `N` resources, data sources... are shown once in a "Common changes" sub-section (default `3`, `0` disables). |
+| `--no-html` | Write no HTML: long lists of entities affected by a common change are plain text instead of a collapsible `<details>` block. |
 | `--descriptions` | Also report documentation-only changes (descriptions). Off by default. |
 | `--provider ADDR` | Only compare one provider when the files contain several (full address or suffix, e.g. `hashicorp/aws`). |
 | `--fail-on-breaking` | Exit with code `2` when breaking changes are found (useful in CI). |
@@ -85,22 +86,41 @@ as a `region` attribute added to every resource, is listed once in a
 repeated under each entity. Common changes keep their impact: a shared
 breaking change is still listed under "Breaking changes".
 
+Each group of common changes starts with the entities it applies to, then
+lists the changes:
+
+- every entity of a kind: "All resources";
+- almost every entity (up to 3 left out): "All resources except `a` and `b`";
+- up to 5 entities: their names, "`a`, `b` and `c` (resources)";
+- more: their number, "6 resources", with the names in a collapsible
+  `<details>` block (plain text with `--no-html`).
+
 ```markdown
 ## ⚠️ Breaking changes
 
 ### Common changes
 
-- **All resources and data sources**: Added required attribute `region` (`string`): Region of the object.
+**All resources except `acme_dns_record` and `acme_iam_role`, and all data sources**
+
+- Added required attribute `region` (`string`): Region of the object.
 
 ### Resources
 
-- **`acme_d`**: Removed attribute `legacy`.
+- **`acme_dns_record`**: Removed attribute `legacy`.
 
 ## Deprecations
 
 ### Common changes
 
-- **`acme_a`, `acme_b` and `acme_c` (resources)**: Attribute `labels` is deprecated: Use `tags` instead.
+**6 resources**
+
+- Attribute `labels` is deprecated: Use `tags` instead.
+
+<details><summary>Affected resources</summary>
+
+`acme_bucket`, `acme_database`, `acme_instance`, `acme_lb`, `acme_network`, `acme_subnet`
+
+</details>
 ```
 
 The JSON output (`--format json`) always lists every change individually.

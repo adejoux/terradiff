@@ -4,6 +4,7 @@ package render
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/adejoux/terradiff/internal/diff"
@@ -26,6 +27,10 @@ type Options struct {
 	// CommonMin is the number of entities from which an identical change is
 	// moved to a "Common changes" sub-section. Values below 2 disable it.
 	CommonMin int
+	// NoHTML disables HTML in the output: long lists of entities affected
+	// by a common change are written as plain text instead of a collapsible
+	// <details> block.
+	NoHTML bool
 }
 
 // Markdown writes the report as Markdown release notes.
@@ -42,6 +47,9 @@ func Markdown(w io.Writer, r *diff.Report, opts Options) error {
 type md struct {
 	b    strings.Builder
 	opts Options
+	// compared lists, per kind, the entities of the current provider
+	// present in both versions.
+	compared map[diff.Kind][]string
 }
 
 func (m *md) heading(level int, text string) {
@@ -113,6 +121,7 @@ func (m *md) provider(level int, name string, changes []diff.Change, compared ma
 	}
 	// Changes shared by many entities are shown once, in a "Common
 	// changes" sub-section at the top of their section, and counted once.
+	m.compared = compared
 	common, rest := diff.FactorCommon(changes, compared, m.opts.CommonMin)
 	if !m.opts.NoSummary {
 		counted := rest
@@ -168,13 +177,13 @@ func (m *md) provider(level int, name string, changes []diff.Change, compared ma
 // a heading, if there are any.
 func (m *md) section(level int, title string, common []diff.CommonGroup, rest []diff.Change, keep func(diff.Change) bool) {
 	type sharedLines struct {
-		label string
+		scope scope
 		lines []string
 	}
 	var shared []sharedLines
 	for _, g := range common {
 		if cs := filter(g.Changes, keep); len(cs) > 0 {
-			shared = append(shared, sharedLines{commonLabel(g), mergeSimilar(cs)})
+			shared = append(shared, sharedLines{m.scopeOf(g), mergeSimilar(cs)})
 		}
 	}
 	own := filter(rest, keep)
@@ -185,23 +194,45 @@ func (m *md) section(level int, title string, common []diff.CommonGroup, rest []
 	if len(shared) > 0 {
 		m.heading(level+1, "Common changes")
 		for _, s := range shared {
-			if len(s.lines) == 1 {
-				m.line("- %s: %s", s.label, s.lines[0])
-				continue
-			}
-			m.line("- %s", s.label)
+			m.line("**%s**", s.scope.label)
+			m.blank()
 			for _, l := range s.lines {
-				m.line("  - %s", l)
+				m.line("- %s", l)
 			}
+			m.blank()
+			m.affected(s.scope)
 		}
-		m.blank()
 	}
 	m.byKind(level+1, own)
 }
 
-// commonLabel describes the entities of a common group: "**All resources
-// and data sources**", "**`a`, `b` and `c` (resources)**".
-func commonLabel(g diff.CommonGroup) string {
+// Thresholds of the "Common changes" labels.
+const (
+	// maxExceptions is the number of unaffected entities of a kind up to
+	// which the label reads "all resources except ...".
+	maxExceptions = 3
+	// maxInlineNames is the number of affected entities of a kind listed in
+	// the label; above it, the label only gives their number.
+	maxInlineNames = 5
+)
+
+// scope describes the entities affected by a group of common changes.
+type scope struct {
+	// label is the human description: "All resources except `a`", "7
+	// resources", "`a`, `b` and `c` (resources)".
+	label string
+	// hidden lists, per kind, the entities counted but not named in the
+	// label.
+	hidden []hiddenNames
+}
+
+type hiddenNames struct {
+	kind  diff.Kind
+	names []string
+}
+
+func (m *md) scopeOf(g diff.CommonGroup) scope {
+	var sc scope
 	var parts, allPlurals []string
 	allOnly := true
 	for _, k := range diff.Kinds {
@@ -216,21 +247,97 @@ func commonLabel(g diff.CommonGroup) string {
 			continue
 		}
 		allOnly = false
-		names := make([]string, len(es))
-		for i, e := range es {
-			names[i] = "`" + e + "`"
+		if missing := exceptions(m.compared[k], es); len(missing) > 0 && len(missing) <= maxExceptions && len(es) > len(missing) && len(es) > maxInlineNames {
+			parts = append(parts, "all "+plural+" except "+enumerate(codes(missing)))
+			continue
 		}
-		if len(es) == 1 {
-			parts = append(parts, names[0]+" ("+k.Singular()+")")
-		} else {
-			parts = append(parts, enumerate(names)+" ("+plural+")")
+		switch {
+		case len(es) == 1:
+			parts = append(parts, codes(es)[0]+" ("+k.Singular()+")")
+		case len(es) <= maxInlineNames:
+			parts = append(parts, enumerate(codes(es))+" ("+plural+")")
+		default:
+			parts = append(parts, fmt.Sprintf("%d %s", len(es), plural))
+			sc.hidden = append(sc.hidden, hiddenNames{k, es})
 		}
 	}
-	label := enumerate(parts)
+	label := joinParts(parts)
 	if allOnly {
 		label = "all " + enumerate(allPlurals)
 	}
-	return "**" + strings.ToUpper(label[:1]) + label[1:] + "**"
+	sc.label = strings.ToUpper(label[:1]) + label[1:]
+	return sc
+}
+
+// affected writes the entities counted but not named in a scope label, as
+// a collapsible block (or plain text with NoHTML).
+func (m *md) affected(sc scope) {
+	if len(sc.hidden) == 0 {
+		return
+	}
+	var kinds []string
+	for _, h := range sc.hidden {
+		kinds = append(kinds, lowerFirst(h.kind.Plural()))
+	}
+	what := "Affected " + enumerate(kinds)
+	if m.opts.NoHTML {
+		for _, h := range sc.hidden {
+			m.line("Affected %s: %s.", lowerFirst(h.kind.Plural()), strings.Join(codes(h.names), ", "))
+			m.blank()
+		}
+		return
+	}
+	m.line("<details><summary>%s</summary>", what)
+	m.blank()
+	for _, h := range sc.hidden {
+		if len(sc.hidden) > 1 {
+			m.line("%s: %s", h.kind.Plural(), strings.Join(codes(h.names), ", "))
+		} else {
+			m.line("%s", strings.Join(codes(h.names), ", "))
+		}
+		m.blank()
+	}
+	m.line("</details>")
+	m.blank()
+}
+
+// exceptions returns the entities of all that are not in affected.
+func exceptions(all, affected []string) []string {
+	in := make(map[string]bool, len(affected))
+	for _, e := range affected {
+		in[e] = true
+	}
+	var out []string
+	for _, e := range all {
+		if !in[e] {
+			out = append(out, e)
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+func codes(names []string) []string {
+	out := make([]string, len(names))
+	for i, n := range names {
+		out[i] = "`" + n + "`"
+	}
+	return out
+}
+
+// joinParts joins the per-kind parts of a label, with a comma before the
+// last "and" when a part already contains one ("all resources except `a`
+// and `b`, and all data sources").
+func joinParts(parts []string) string {
+	if len(parts) < 2 {
+		return strings.Join(parts, "")
+	}
+	for _, p := range parts {
+		if strings.Contains(p, " and ") {
+			return strings.Join(parts[:len(parts)-1], ", ") + ", and " + parts[len(parts)-1]
+		}
+	}
+	return enumerate(parts)
 }
 
 func (m *md) summary(changes []diff.Change) {

@@ -11,7 +11,9 @@
 
 ### Common changes
 
-- **All resources and data sources**: Added required attribute `region` (`string`): Region of the object.
+**All resources and data sources**
+
+- Added required attribute `region` (`string`): Region of the object.
 
 ### Resources
 
@@ -21,16 +23,22 @@
 
 ### Common changes
 
-- **`acme_a`, `acme_b` and `acme_c` (resources)**: Attribute `labels` is deprecated: Use `tags` instead.
+**`acme_a`, `acme_b` and `acme_c` (resources)**
+
+- Attribute `labels` is deprecated: Use `tags` instead.
 
 ## Enhancements
 
 ### Common changes
 
-- **All resources**: Added optional attribute `tags` (`map(string)`): Tags applied to the object.
+**All resources**
+
+- Added optional attribute `tags` (`map(string)`): Tags applied to the object.
 
 ## Other changes
 
 ### Common changes
 
-- **All resources**: Attributes `owner`, `project_id` and `zone` are now computed by the provider when not set.
+**All resources**
+
+- Attributes `owner`, `project_id` and `zone` are now computed by the provider when not set.
